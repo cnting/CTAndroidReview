@@ -16,8 +16,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".test_lifecycle.TestLifecycleActivity"/>
-        <activity android:name=".test_fragment_manager.TestFragmentManagerActivity"/>
+        <activity android:name=".test_lifecycle.TestLifecycleActivity" />
+        <activity android:name=".test_fragment_manager.TestFragmentManagerActivity" />
+        <activity android:name=".test_with_viewpager.TestWithViewPagerActivity" />
     </application>
 
 </manifest>

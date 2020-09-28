@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.cnting.fragmentreview.test_fragment_manager.TestFragmentManagerActivity
 import com.cnting.fragmentreview.test_lifecycle.TestLifecycleActivity
+import com.cnting.fragmentreview.test_with_viewpager.TestWithViewPagerActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +25,14 @@ class MainActivity : AppCompatActivity() {
                 Intent(
                     this,
                     TestFragmentManagerActivity::class.java
+                )
+            )
+        }
+        testViewPager.setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    TestWithViewPagerActivity::class.java
                 )
             )
         }
