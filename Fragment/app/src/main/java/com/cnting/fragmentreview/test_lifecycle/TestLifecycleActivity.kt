@@ -18,12 +18,9 @@ class TestLifecycleActivity : AppCompatActivity() {
         Log.d("TestLifecycleActivity", "=>onCreate")
 
         //在Activity重建时，会自动创建上次的Fragment，所以不需要我们再手动创建了
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.fragmentContainer, TestLifecycleFragment())
-                .addToBackStack("")
-                .commit()
-        }
+//        if (savedInstanceState == null) {
+//            addFragment()
+//        }
 
         fragmentContainer.setOnClickListener {
             supportFragmentManager.beginTransaction()
@@ -32,6 +29,13 @@ class TestLifecycleActivity : AppCompatActivity() {
                 .commit()
         }
 
+    }
+
+    private fun addFragment() {
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, TestLifecycleFragment())
+            .addToBackStack("")
+            .commit()
     }
 
     override fun onStart() {
@@ -52,6 +56,7 @@ class TestLifecycleActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         Log.d("TestLifecycleActivity", "=>onPause")
+        addFragment()
     }
 
     override fun onStop() {

@@ -19,6 +19,7 @@
         <activity android:name=".test_lifecycle.TestLifecycleActivity" />
         <activity android:name=".test_fragment_manager.TestFragmentManagerActivity" />
         <activity android:name=".test_with_viewpager.TestWithViewPagerActivity" />
+        <activity android:name=".test_backstack.TestBackStackActivity" />
     </application>
 
 </manifest>

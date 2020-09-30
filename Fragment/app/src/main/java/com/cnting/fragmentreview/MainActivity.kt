@@ -3,6 +3,7 @@ package com.cnting.fragmentreview
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.cnting.fragmentreview.test_backstack.TestBackStackActivity
 import com.cnting.fragmentreview.test_fragment_manager.TestFragmentManagerActivity
 import com.cnting.fragmentreview.test_lifecycle.TestLifecycleActivity
 import com.cnting.fragmentreview.test_with_viewpager.TestWithViewPagerActivity
@@ -33,6 +34,14 @@ class MainActivity : AppCompatActivity() {
                 Intent(
                     this,
                     TestWithViewPagerActivity::class.java
+                )
+            )
+        }
+        testBackStack.setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    TestBackStackActivity::class.java
                 )
             )
         }

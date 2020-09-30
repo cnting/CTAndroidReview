@@ -67,4 +67,9 @@ class MyFragment : Fragment(R.layout.fragment_test_lifecycle) {
         Log.d("===>", "onDetach $position")
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        Log.d("===>", "onHiddenChanged $position isHidden:$hidden")
+    }
+
 }

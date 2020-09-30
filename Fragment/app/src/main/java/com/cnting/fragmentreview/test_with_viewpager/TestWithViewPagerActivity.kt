@@ -22,6 +22,6 @@ class TestWithViewPagerActivity : AppCompatActivity() {
 //                supportFragmentManager
 //            )
         viewPager2.adapter = MyViewPager2Adapter(this)
-        viewPager2.offscreenPageLimit = 3
+//        viewPager2.offscreenPageLimit = 3
     }
 }
