@@ -20,6 +20,7 @@
         <activity android:name=".test_fragment_manager.TestFragmentManagerActivity" />
         <activity android:name=".test_with_viewpager.TestWithViewPagerActivity" />
         <activity android:name=".test_backstack.TestBackStackActivity" />
+        <activity android:name=".test_send_msg.TestSendMsgActivity" />
     </application>
 
 </manifest>
