@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cnting.recyclerview">
-
-    <uses-permission android:name="android.permission.INTERNET" />
+    package="com.cnting.nestedscrollview">
 
     <application
         android:allowBackup="true"
@@ -18,8 +16,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".stagger.StaggerActivity" />
-        <activity android:name=".custom_layoutmanager.CustomLayoutManagerActivity" />
     </application>
 
 </manifest>
