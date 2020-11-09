@@ -1,6 +1,7 @@
 package com.cnting.recyclerview.custom_layoutmanager
 
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +30,7 @@ class CustomLayoutManagerAdapter : RecyclerView.Adapter<MyViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        return 20
+        return 6
     }
 
 }

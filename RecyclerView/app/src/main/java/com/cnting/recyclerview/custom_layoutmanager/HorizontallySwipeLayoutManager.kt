@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 /**
  * Created by cnting on 2020/11/6
- * 水平切换的LayoutManager
+ * 水平切换的LayoutManager，实例来自 https://juejin.im/post/6844903937905016845
  */
 class HorizontallySwipeLayoutManager(val itemHeightWidthRatio: Float, val scale: Float) :
     RecyclerView.LayoutManager() {
@@ -14,7 +14,13 @@ class HorizontallySwipeLayoutManager(val itemHeightWidthRatio: Float, val scale:
     private var hasMeasureChild = false
     private var itemViewHeight = 0
     private var itemViewWidth = 0
-    private var scrollOffset = Int.MAX_VALUE
+    private var scrollOffset =
+        Int.MAX_VALUE  //滑动范围[itemWidth,itemWidth*itemCount],一开始在itemWidth*itemCount
+
+    override fun onAttachedToWindow(view: RecyclerView?) {
+        super.onAttachedToWindow(view)
+        HorizontallySwipeSnapHelper().attachToRecyclerView(view)  //如果没有滑动到位，需要调整位置
+    }
 
     /**
      * 1. 用于给ItemView生成LayoutParams
@@ -33,7 +39,7 @@ class HorizontallySwipeLayoutManager(val itemHeightWidthRatio: Float, val scale:
      */
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State) {
         if (state.itemCount == 0 || state.isPreLayout) return
-        removeAndRecycleAllViews(recycler)  // TODO: 下面fill()方法有【先回收再布局】的操作，这里为什么要再来一遍  
+        removeAndRecycleAllViews(recycler)
         //计算初始宽高
         if (!hasMeasureChild) {
             itemViewHeight = getVerticalSpace()
@@ -72,6 +78,7 @@ class HorizontallySwipeLayoutManager(val itemHeightWidthRatio: Float, val scale:
         for (i in bottomVisiblePosition - 1 downTo 0) {
             val maxOffset = defaultOffset * Math.pow(scale.toDouble(), (j - 1).toDouble())
             val start = (remainSpace - offsetPercent * maxOffset - itemViewWidth).toInt()
+//            val start = ((remainSpace - itemViewWidth) / 2 - offsetPercent * maxOffset).toInt()
             val info =
                 ItemViewInfo(
                     start,
@@ -80,7 +87,10 @@ class HorizontallySwipeLayoutManager(val itemHeightWidthRatio: Float, val scale:
                         j - 1.toDouble()
                     ) * (1 - offsetPercent * (1 - scale))).toFloat()
                 )
-            Log.d("===>", "info:$info")
+            Log.d(
+                "===>",
+                "info:$info,start:$start,maxOffset:$maxOffset,remainSpace:$remainSpace,offsetPercent:$offsetPercent"
+            )
             itemViewInfos.add(0, info)
             remainSpace -= maxOffset
             if (remainSpace < 0) {
@@ -90,6 +100,8 @@ class HorizontallySwipeLayoutManager(val itemHeightWidthRatio: Float, val scale:
             }
             j++
         }
+
+
         //3.添加最右边itemView的相关信息
         if (bottomVisiblePosition < itemCount) {
             val left = space - bottomItemVisibleSize
@@ -101,16 +113,12 @@ class HorizontallySwipeLayoutManager(val itemHeightWidthRatio: Float, val scale:
         val layoutCount = itemViewInfos.size
         val startPosition = bottomVisiblePosition - (layoutCount - 1)
         val endPosition = bottomVisiblePosition
-        Log.d(
-            "===>",
-            "startPosition:$startPosition,endPosition:$endPosition,layoutCount:$layoutCount,itemCount:$itemCount"
-        )
         (childCount - 1..0).forEach {
             val childView = getChildAt(it)
             if (childView != null) {
                 val posiiton = convert2LayoutPosition(it)
                 if (posiiton > endPosition || posiiton < startPosition) {
-                    detachAndScrapView(childView, recycler)
+                    detachAndScrapView(childView, recycler)  //超过屏幕的回收
                 }
             }
         }
@@ -156,8 +164,41 @@ class HorizontallySwipeLayoutManager(val itemHeightWidthRatio: Float, val scale:
     }
 
     private fun convert2AdapterPosition(position: Int): Int {
-        Log.d("===>", "itemCount:$itemCount,position:$position")
         return itemCount - 1 - position
+    }
+
+    /**
+     * 设置水平可滑动
+     */
+    override fun canScrollHorizontally(): Boolean {
+        return true
+    }
+
+    override fun scrollHorizontallyBy(
+        dx: Int,
+        recycler: RecyclerView.Recycler,
+        state: RecyclerView.State?
+    ): Int {
+        //水平滑动范围为[itemWidth,itemWidth*itemCount]，如果超出需要调整
+        val pendingScrollOffset = scrollOffset + dx
+        scrollOffset = makeScrollOffsetWithinRange(pendingScrollOffset)
+        fill(recycler)
+        return scrollOffset - pendingScrollOffset + dx
+    }
+
+    fun calculateDistanceToPosition(targetPosition: Int): Int {
+        val pendingScrollOffset = itemViewWidth * (convert2LayoutPosition(targetPosition) + 1)
+        return pendingScrollOffset - scrollOffset
+    }
+
+    fun getFixedScrollPosition(): Int {
+        if (hasMeasureChild) {
+            if (scrollOffset % itemViewWidth == 0)
+                return RecyclerView.NO_POSITION
+            val position = scrollOffset.toFloat() / itemViewWidth
+            return convert2AdapterPosition((position - 0.5f).toInt())  //滑动距离超过一半，就算下一个item
+        }
+        return RecyclerView.NO_POSITION
     }
 }
 

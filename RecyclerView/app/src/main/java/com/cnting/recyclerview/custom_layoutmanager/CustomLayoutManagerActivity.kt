@@ -15,7 +15,8 @@ class CustomLayoutManagerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stagger)
         val adapter = CustomLayoutManagerAdapter()
-        val layoutManager = HorizontallySwipeLayoutManager(1.5f, 0.6f)
+        val layoutManager = HorizontallySwipeLayoutManager(2f, 0.8f)
+//        val layoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
     }
