@@ -19,4 +19,25 @@
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
         android:text="自定义LayoutManager" />
+
+    <Button
+        android:id="@+id/itemTouchHelperBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="自定义ItemTouchHelper" />
+
+    <Button
+        android:id="@+id/cardSwipeBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="切换卡片" />
+
+    <Button
+        android:id="@+id/releaseTimeBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="测试卡片释放时机" />
 </LinearLayout>
