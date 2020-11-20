@@ -17,6 +17,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".nestscroll.TestNestedScrollActivity" />
+        <activity android:name=".behavior.DependentActivity" />
+        <activity android:name=".appbarlayout.TestAppbarActivity" />
     </application>
 
 </manifest>

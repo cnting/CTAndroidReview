@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat
  * Created by cnting on 2020/11/19
  * 向上滑动时，head先消费
  * 向下滑动时，child先消费
+ * https://juejin.im/post/6844903761060577294#heading-8
  */
 class TestNestedScrollParent : LinearLayout, NestedScrollingParent3 {
     constructor(context: Context?) : super(context)
@@ -116,14 +117,15 @@ class TestNestedScrollParent : LinearLayout, NestedScrollingParent3 {
                 headView,
                 widthMeasureSpec,
                 0,
-                MeasureSpec.UNSPECIFIED,  // TODO: 这里高度为 UNSPECIFIED 是为啥
+                MeasureSpec.AT_MOST,
                 0
             )
             headerHeight = headView.measuredHeight
+
             super.onMeasure(
                 widthMeasureSpec,
                 MeasureSpec.makeMeasureSpec(
-                    MeasureSpec.getSize(heightMeasureSpec) + headerHeight,  // TODO: 这里是做啥
+                    MeasureSpec.getSize(heightMeasureSpec) + headerHeight,  // 需要额外加上header的高度，当header隐藏时，RecyclerView下面需要撑满
                     MeasureSpec.EXACTLY
                 )
             )
