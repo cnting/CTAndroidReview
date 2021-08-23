@@ -40,6 +40,12 @@ class MainActivity : AppCompatActivity() {
             intent.putExtras(bundle)
             startActivity(intent)
         }
+
+
+        Log.d(
+            "===>",
+            "activity:$this,view.context:${bigFileBtn.context},packageName:${bigFileBtn.context.packageName}"
+        )
     }
 
 }
