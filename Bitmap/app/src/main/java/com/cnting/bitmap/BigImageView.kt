@@ -54,6 +54,7 @@ class BigImageView : View {
                     distanceX: Float,
                     distanceY: Float
                 ): Boolean {
+                    Log.i("===>", "onScroll(),distinceY:$distanceY")
                     update(distanceX.toInt(), distanceY.toInt())
 //                    update(rect.left + distanceX.toInt(), rect.top + distanceY.toInt())
                     return super.onScroll(e1, e2, distanceX, distanceY)
@@ -65,18 +66,19 @@ class BigImageView : View {
                     velocityX: Float,
                     velocityY: Float
                 ): Boolean {
-                    Log.d("===>", "onFling(),")
-                    flingStartX = scrollX
-                    flingStartY = scrollY
+                    Log.d(
+                        "===>",
+                        "onFling(),scrollX:$scrollX,scrollY:$scrollY,rectLeft:${rect.left},rectTop:${rect.top}"
+                    )
                     overScroller.fling(
                         rect.left,
-                        rect.top,
+                        -rect.top,
                         velocityX.toInt(),
                         velocityY.toInt(),
+                        -imgWidth,
                         0,
-                        imgWidth - width,
+                        -imgHeight,
                         0,
-                        imgHeight - height
                     )
                     invalidate()
                     return true
@@ -89,16 +91,10 @@ class BigImageView : View {
             })
     }
 
-    private var flingStartX = 0
-    private var flingStartY = 0
-
     override fun computeScroll() {
         super.computeScroll()
         if (overScroller.computeScrollOffset()) {
-            //内容往上时，currY为负值；内容往下时，currY为正值
             Log.d("===>", "currX:${overScroller.currX},currY:${overScroller.currY}")
-//            update(scrollX-overScroller.currX , scrollY-overScroller.currY )
-
 
             if (imgWidth > width) {
                 rect.offsetTo(-overScroller.currX, 0)
@@ -113,17 +109,6 @@ class BigImageView : View {
         }
     }
 
-    //    private fun update(curX: Int, curY: Int) {
-//        if (imgWidth > width) {
-//            rect.offsetTo(curX, 0)
-//            checkWidth()
-//        }
-//        if (imgHeight > height) {
-//            rect.offsetTo(0, curY)
-//            checkHeight()
-//        }
-//        invalidate()
-//    }
     private fun update(curX: Int, curY: Int) {
         if (imgWidth > width) {
             rect.offset(curX, 0)
