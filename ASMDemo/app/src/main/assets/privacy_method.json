@@ -1,0 +1,12 @@
+{
+  "methods": [
+    {
+      "name_regex": "android.app.ActivityManager.getRunningAppProcesses",
+      "message": "读取当前运行应用进程"
+    },
+    {
+      "name_regex": "android.telephony.TelephonyManager.listen",
+      "message": "监听呼入电话信息"
+    }
+  ]
+}

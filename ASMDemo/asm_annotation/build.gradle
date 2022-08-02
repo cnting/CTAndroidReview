@@ -1,0 +1,10 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+}
+android{
+    compileSdkVersion 31
+}
+dependencies {
+    implementation group: 'org.ow2.asm', name: 'asm', version: '9.2'
+}
