@@ -1,42 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
-
-    <TextView
-        android:id="@+id/tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
 
     <Button
-        android:id="@+id/showMsgBtn"
-        android:text="显示信息"
+        android:id="@+id/testPatchBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="30dp"
+        android:text="测试热修复" />
 
     <Button
-        android:id="@+id/loadPatchBtn"
+        android:id="@+id/testPluginBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="加载插件" />
-
-    <Button
-        android:id="@+id/deletePatchBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="删除插件" />
-
-    <Button
-        android:id="@+id/killSelfBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="杀掉进程" />
+        android:layout_marginTop="30dp"
+        android:text="测试插件" />
 
 </LinearLayout>

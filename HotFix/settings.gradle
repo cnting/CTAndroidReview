@@ -14,3 +14,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "HotFix"
 include ':app'
+include ':my_plugin_apk'
+include ':plugin'
+include ':patch'
