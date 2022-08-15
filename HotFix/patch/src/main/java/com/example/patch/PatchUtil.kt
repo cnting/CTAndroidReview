@@ -19,6 +19,9 @@ object PatchUtil {
     @RequiresApi(Build.VERSION_CODES.O)
     fun downloadPatch(context: Context, patchName: String): String {
         val file = getPatchFile(context, patchName)
+        if(file.exists()){
+            file.delete()
+        }
         Files.copy(context.assets.open(patchName), file.toPath())
         return file.absolutePath
     }
