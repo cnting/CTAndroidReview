@@ -15,7 +15,7 @@ class RemoteActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val bundle = intent?.extras
-        val imageBinder = bundle?.getBinder("bitmap") as ImageBinder2
+        val imageBinder = bundle?.getBinder("bitmap") as ImageBinder
         val bitmap = imageBinder.bitmap
         val imageView = ImageView(this).apply {
             layoutParams = ViewGroup.LayoutParams(

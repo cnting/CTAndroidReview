@@ -1,9 +1,9 @@
 package com.cnting.bitmap
 
 import android.os.Bundle
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
+import com.cnting.bitmap.bigimg.BigImageView
+import com.cnting.bitmap.bigimg.bean.ImageResource
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,8 +25,8 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        }
 
-        Glide.with(this)
-            .load("https://cn.bing.com/az/hprichbg/rb/Dongdaemun_ZH-CN10736487148_1920x1080.jpg")
-            .into(findViewById<ImageView>(R.id.img))
+        findViewById<BigImageView>(R.id.img).apply {
+            setImageSource(ImageResource(assets.open("b.jpg")))
+        }
     }
 }

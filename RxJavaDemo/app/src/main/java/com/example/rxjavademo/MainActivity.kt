@@ -29,7 +29,8 @@ class MainActivity : AppCompatActivity() {
             .setOnClickListener {
                 subscription?.request(64)
             }
-        testMaybe()
+//        testMaybe()
+        testThrottle()
     }
 
     private fun testDisposable() {
@@ -187,22 +188,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun testThrottle() {
-//        Observable.interval(80, TimeUnit.MILLISECONDS)
-//            .throttleLatest(500, TimeUnit.MILLISECONDS)
-//            .subscribe { Log.d(TAG, it.toString()) }
-
-        Observable.create { emitter ->
-            (0..10).forEach {
-                if (!emitter.isDisposed) {
-                    emitter.onNext(it)
-                }
-                val sleep = if (it % 3 == 0) 300 else 100
-                Thread.sleep(sleep.toLong())
-            }
-            emitter.onComplete()
-        }.subscribeOn(Schedulers.computation())
-            .throttleWithTimeout(200, TimeUnit.MILLISECONDS)
+        Observable.interval(80, TimeUnit.MILLISECONDS)
+            .throttleLatest(500, TimeUnit.MILLISECONDS)
             .subscribe { Log.d(TAG, it.toString()) }
+
+//        Observable.create { emitter ->
+//            (0..10).forEach {
+//                if (!emitter.isDisposed) {
+//                    emitter.onNext(it)
+//                }
+//                val sleep = if (it % 3 == 0) 300 else 100
+//                Thread.sleep(sleep.toLong())
+//            }
+//            emitter.onComplete()
+//        }.subscribeOn(Schedulers.computation())
+//            .throttleWithTimeout(200, TimeUnit.MILLISECONDS)
+//            .subscribe { Log.d(TAG, it.toString()) }
     }
 
     private fun testWindow() {
