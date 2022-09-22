@@ -33,7 +33,7 @@ class BigImageView : View {
     //不同采样率对应不同切片
     private val tileMap = mutableMapOf<Int, List<Tile>>()
 
-    private val scaleAndTranslate = ScaleAndTranslate(0f, PointF(0f, 0f))
+    private val satTmp = ScaleAndTranslate(0f, PointF(0f, 0f))
 
     // 当前缩放
     private var scale = 0f
@@ -86,10 +86,6 @@ class BigImageView : View {
 
     //Max touches used in current gesture
     private var maxTouchCount = 0
-
-    private var panEnable = true
-    private var zoomEnable = true
-    private var quickScaleEnable = true
 
     private var isFirstTimeFitBounds = true
 
@@ -151,6 +147,7 @@ class BigImageView : View {
         super.onDraw(canvas)
         createPaints()
         if (imgWidth == 0 || imgHeight == 0 || width == 0 || height == 0) return
+
         if (tileMap.isEmpty() && imageRegionDecoder != null) {
             initBaseLayer(getMaxBitmapDimension(canvas))
         }
@@ -159,7 +156,7 @@ class BigImageView : View {
         preDraw()
 
         if (tileMap.isNotEmpty() && isBaseLayerReady()) {
-            val sampleSize = Math.min(fullImageSampleSize, calculateInSampleSize(scale))
+            val sampleSize = calculateInSampleSize(scale).coerceAtMost(fullImageSampleSize)
 
             //sampleSize对应的切片是否加载完
             var hasMissingTiles = false
@@ -257,25 +254,24 @@ class BigImageView : View {
 
     private fun onTouchEventInternal(event: MotionEvent): Boolean {
         val touchCount = event.pointerCount
-        when (event.action) {
-            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_1_DOWN, MotionEvent.ACTION_POINTER_2_DOWN -> {
+
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
                 requestDisallowInterceptTouchEvent(true)
                 maxTouchCount = Math.max(maxTouchCount, touchCount)
                 if (touchCount >= 2) {
                     //记录双指缩放 按下时的数据
-                    if (zoomEnable) {
-                        val distance =
-                            distance(event.getX(0), event.getX(1), event.getY(0), event.getY(1))
-                        scaleStart = scale
-                        vDistStart = distance
-                        vTranslateStart.set(vTranslate)
-                        vCenterStart.set(
-                            (event.getX(0) + event.getX(1)) / 2,
-                            (event.getY(0) + event.getY(1)) / 2,
-                        )
-                    } else {
-                        maxTouchCount = 0
-                    }
+                    //两指距离
+                    val distance =
+                        distance(event.getX(0), event.getX(1), event.getY(0), event.getY(1))
+                    scaleStart = scale
+                    vDistStart = distance
+                    vTranslateStart.set(vTranslate)
+                    //两指中心位置
+                    vCenterStart.set(
+                        (event.getX(0) + event.getX(1)) / 2,
+                        (event.getY(0) + event.getY(1)) / 2,
+                    )
                 } else if (!isQuickScaling) {
                     vTranslateStart.set(vTranslate)
                     vCenterStart.set(event.x, event.y)
@@ -294,12 +290,9 @@ class BigImageView : View {
                         val vCenterEndY = (event.getY(0) + event.getY(1)) / 2
 
                         //缩放距离超过5
-                        if (zoomEnable && (distance(
-                                vCenterStart.x,
-                                vCenterEndX,
-                                vCenterStart.y,
-                                vCenterEndY
-                            ) > 5 || Math.abs(vDistEnd - vDistStart) > 5 || isPanning)
+                        if (distance(vCenterStart.x, vCenterEndX, vCenterStart.y, vCenterEndY) > 5
+                            || Math.abs(vDistEnd - vDistStart) > 5
+                            || isPanning
                         ) {
                             isZooming = true
                             isPanning = true
@@ -314,15 +307,22 @@ class BigImageView : View {
                                 scaleStart = minScale()
                                 vCenterStart.set(vCenterEndX, vCenterEndY)
                                 vTranslateStart.set(vTranslate)
-                            } else if (panEnable) {
-                                //中心偏移了多少
+
+                            } else {
+                                //下面是以两根手指的中心位置 为中心 进行缩放
+
+                                //缩放前，手指中心偏移距离
                                 val vLeftStart = vCenterStart.x - vTranslateStart.x
                                 val vTopStart = vCenterStart.y - vTranslateStart.y
+                                //偏移距离也需要进行缩放
                                 val vLeftNow = vLeftStart * (scale / scaleStart)
                                 val vTopNow = vTopStart * (scale / scaleStart)
+                                //比如一个点，放大时会往右上方偏移，我们需要把它减掉，回到左下方，也就是原来位置
                                 vTranslate.x = vCenterEndX - vLeftNow
                                 vTranslate.y = vCenterEndY - vTopNow
-                                //放大超过当前屏幕
+
+
+                                //放大超过当前屏幕，需要修正 scale 和 vTranslate
                                 if ((previousScale * imgHeight < height && scale * imgHeight >= height)
                                     || (previousScale * imgWidth < width && scale * imgWidth >= width)
                                 ) {
@@ -332,10 +332,6 @@ class BigImageView : View {
                                     scaleStart = scale
                                     vDistStart = vDistEnd
                                 }
-                            } else {
-                                //缩放到图片中心
-                                vTranslate.x = width / 2 - scale * imgWidth / 2
-                                vTranslate.y = height / 2 - scale * imgHeight / 2
                             }
                             fitToBounds(true)
                             refreshRequireTiles()
@@ -347,8 +343,8 @@ class BigImageView : View {
                     }
                 }
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_POINTER_2_UP -> {
-
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                //ACTION_POINTER_UP，抬起手指的数据还在。比如两根手指，抬起一根，pointerCount还是2。之后的move事件拿到的pointerCount才是1
                 if (maxTouchCount > 0 && (isZooming || isPanning)) {
                     if (isZooming && touchCount == 2) {
                         isPanning = true
@@ -362,11 +358,11 @@ class BigImageView : View {
                             vCenterStart.set(event.getX(1), event.getY(1))
                         }
                     }
-                    // TODO: 这里没看懂，不应该是<2吗
-                    if (touchCount < 3) {
+                    //如果现在touchCount是<=2，抬起后变成<=1，所以不能缩放了
+                    if (touchCount <= 2) {
                         isZooming = false
                     }
-                    if (touchCount < 2) {
+                    if (touchCount <= 1) {
                         isPanning = false
                         maxTouchCount = 0
                     }
@@ -483,17 +479,10 @@ class BigImageView : View {
     }
 
     /**
-     * 不同采样率对应不同切片
+     * 初始化不同采样率下的切片，不同采样率对应不同切片
      */
     private fun initBaseLayer(maxTileDimensions: Point) {
-        fitToBounds(true, scaleAndTranslate)
-
-        fullImageSampleSize = calculateInSampleSize(scaleAndTranslate.scale)
-
-        // TODO: 这里没看懂
-        if (fullImageSampleSize > 1) {
-            fullImageSampleSize /= 2
-        }
+        fullImageSampleSize = calculateInSampleSize(minScale())
 
         if (fullImageSampleSize == 1 && imgWidth < maxTileDimensions.x && imgHeight < maxTileDimensions.y) {
             imageRegionDecoder?.recycle()
@@ -568,7 +557,7 @@ class BigImageView : View {
     private fun refreshRequireTiles() {
         if (imageRegionDecoder == null || tileMap.isEmpty()) return
         val mDecoder = imageRegionDecoder ?: return
-        val sampleSize = Math.min(fullImageSampleSize, calculateInSampleSize(scale))
+        val sampleSize = calculateInSampleSize(scale).coerceAtMost(fullImageSampleSize)
         tileMap.forEach {
             it.value.forEach { tile ->
                 //不清除 fullImageSampleSize 对应的 Bitmap
@@ -597,7 +586,6 @@ class BigImageView : View {
     }
 
     private fun tileVisible(tile: Tile): Boolean {
-        // TODO: 这里不是很理解，width、height为什么要转一次
         val sVisLeft = viewToSourceX(0f)
         val sVisRight = viewToSourceX(width.toFloat())
         val sVisTop = viewToSourceY(0f)
@@ -606,70 +594,81 @@ class BigImageView : View {
     }
 
     private fun fitToBounds(center: Boolean) {
-        //scaleAndTranslate存在的意义：避免在计算 scale 和 vTranslate 新值的过程中这两个变量在其他地方被改变
-        scaleAndTranslate.scale = scale
-        scaleAndTranslate.vTranslate.set(vTranslate)
-        fitToBounds(center, scaleAndTranslate)
-        scale = scaleAndTranslate.scale
-        vTranslate.set(scaleAndTranslate.vTranslate)
+        //satTmp存在的意义：避免在计算 scale 和 vTranslate 新值的过程中这两个变量在其他地方被改变
+        satTmp.scale = scale
+        satTmp.vTranslate.set(vTranslate)
+        fitToBounds(center, satTmp)
+        scale = satTmp.scale
+        vTranslate.set(satTmp.vTranslate)
 
         //第一次加载，设置图片居中
         if (isFirstTimeFitBounds) {
             isFirstTimeFitBounds = false
-            vTranslate.set(vTranslateForSCenter(imgWidth / 2f, imgHeight / 2f, scale))
+            vTranslate.set(translateToCenter(scale))
         }
     }
 
     /**
-     * 控制 scale 和 translate
-     *
+     * 控制 scale 和 translate 不超出边界
      */
     private fun fitToBounds(center: Boolean, scaleAndTranslate: ScaleAndTranslate) {
         val scale = limitScale(scaleAndTranslate.scale)
+        scaleAndTranslate.scale = scale
+
         val scaleWidth = scale * imgWidth
         val scaleHeight = scale * imgHeight
         val vTranslate = scaleAndTranslate.vTranslate
 
         if (center) {
-            vTranslate.x = Math.max(vTranslate.x, width - scaleWidth)
-            vTranslate.y = Math.max(vTranslate.y, height - scaleHeight)
+            vTranslate.x = vTranslate.x
+                .coerceAtLeast(-(width - scaleWidth) / 2)
+                .coerceAtMost((width - scaleWidth) / 2)
+
+            vTranslate.y = vTranslate.y
+                .coerceAtLeast(-(height - scaleHeight) / 2)
+                .coerceAtMost((height - scaleHeight) / 2)
         } else {
-            // TODO: 这里没看懂
-            vTranslate.x = Math.max(vTranslate.x, -scaleWidth)
-            vTranslate.y = Math.max(vTranslate.y, -scaleHeight)
+            vTranslate.x = vTranslate.x
+                .coerceAtLeast(-scaleWidth)
+                .coerceAtMost(width.toFloat())
+            vTranslate.y = vTranslate.y.coerceAtLeast(-scaleHeight)
+                .coerceAtMost(height.toFloat())
         }
 
-        //调整padding不对称问题
-        val xPaddingRatio =
-            if (paddingLeft > 0 || paddingRight > 0) paddingLeft.toFloat() / paddingLeft + paddingEnd else 0.5f
-        val yPaddingRatio =
-            if (paddingTop > 0 || paddingBottom > 0) paddingTop.toFloat() / paddingTop + paddingBottom else 0.5f
-        val maxTx: Float
-        val maxTy: Float
-        if (center) {
-            maxTx = Math.max(0f, (width - scaleWidth) * xPaddingRatio)
-            maxTy = Math.max(0f, (height - scaleHeight) * yPaddingRatio)
-        } else {
-            maxTx = Math.max(0f, width.toFloat())
-            maxTy = Math.max(0f, height.toFloat())
-        }
-
-        vTranslate.x = Math.min(vTranslate.x, maxTx)
-        vTranslate.y = Math.min(vTranslate.y, maxTy)
-
-        scaleAndTranslate.scale = scale
+//        if (center) {
+//            vTranslate.x = Math.max(vTranslate.x, width - scaleWidth)
+//            vTranslate.y = Math.max(vTranslate.y, height - scaleHeight)
+//        } else {
+//            // TODO: 这里没看懂
+//            vTranslate.x = Math.max(vTranslate.x, -scaleWidth)
+//            vTranslate.y = Math.max(vTranslate.y, -scaleHeight)
+//        }
+//
+//
+//        val maxTx: Float
+//        val maxTy: Float
+//        if (center) {
+//            maxTx = Math.max(0f, (width - scaleWidth) * xPaddingRatio)
+//            maxTy = Math.max(0f, (height - scaleHeight) * yPaddingRatio)
+//        } else {
+//            maxTx = Math.max(0f, width.toFloat())
+//            maxTy = Math.max(0f, height.toFloat())
+//        }
+//6
+//        vTranslate.x = Math.min(vTranslate.x, maxTx)
+//        vTranslate.y = Math.min(vTranslate.y, maxTy)
     }
 
-    private fun vTranslateForSCenter(sCenterX: Float, sCenterY: Float, scale: Float): PointF {
-        val vxCenter = paddingLeft + (width - paddingLeft - paddingRight) / 2
-        val vyCenter = paddingTop + (height - paddingTop - paddingBottom) / 2
-        scaleAndTranslate.scale = scale
-        scaleAndTranslate.vTranslate.set(
-            vxCenter - (sCenterX * scale),
-            vyCenter - (sCenterY * scale)
+    /**
+     * 居中偏移
+     */
+    private fun translateToCenter(scale: Float): PointF {
+        satTmp.vTranslate.set(
+            width / 2f - (imgWidth / 2f * scale),
+            height / 2f - (imgHeight / 2f * scale)
         )
-        fitToBounds(true, scaleAndTranslate)
-        return scaleAndTranslate.vTranslate
+        fitToBounds(true, satTmp)
+        return satTmp.vTranslate
     }
 
     /**
@@ -701,11 +700,8 @@ class BigImageView : View {
             val averageDpi = (metrics.xdpi + metrics.ydpi) / 2
             mScale = minTileDpi / averageDpi * scale
         }
-        val reqWidth = imgWidth * mScale
-        val reqHeight = imgHeight * mScale
 
         var inSampleSize = 1
-        if (reqWidth == 0f || reqHeight == 0f) return 32
 
         if (mScale > 0 && mScale < 1) {
             inSampleSize = (1 / mScale).roundToInt()
