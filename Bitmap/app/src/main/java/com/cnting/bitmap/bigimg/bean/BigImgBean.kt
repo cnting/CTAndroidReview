@@ -13,7 +13,7 @@ data class ImageResource(val inputStream: InputStream)
  */
 data class Tile(
     //切片原始大小
-    val sRect: Rect,
+    val sRect: RectF,
     //保存切片绘制大小（经过缩放、平移）
     var vRect: RectF,
     val sampleSize: Int,
@@ -23,3 +23,14 @@ data class Tile(
 )
 
 data class ScaleAndTranslate(var scale: Float, var vTranslate: PointF)
+
+data class ZoomAnim(
+    var scaleStart: Float,
+    var scaleEnd: Float,
+    var sCenterStart: PointF,
+    var sCenterEnd: PointF,
+    var vFocusStart: PointF,
+    var vFocusEnd: PointF,
+    var duration: Long = 500L,
+    var interruptable: Boolean = false,
+)

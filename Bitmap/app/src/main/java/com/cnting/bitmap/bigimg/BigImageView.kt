@@ -1,5 +1,9 @@
 package com.cnting.bitmap.bigimg
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
+import android.animation.TimeInterpolator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.os.AsyncTask
@@ -8,12 +12,16 @@ import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.graphics.toRect
 import com.cnting.bitmap.bigimg.bean.ImageResource
 import com.cnting.bitmap.bigimg.bean.ScaleAndTranslate
 import com.cnting.bitmap.bigimg.bean.Tile
+import com.cnting.bitmap.bigimg.bean.ZoomAnim
 import com.cnting.bitmap.bigimg.decoder.DecoderFactory
 import com.cnting.bitmap.bigimg.decoder.ImageRegionDecoder
 import com.cnting.bitmap.bigimg.decoder.SkiaImageRegionDecoder
+import com.cnting.bitmap.dp2px
 import java.lang.ref.WeakReference
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.math.roundToInt
@@ -33,6 +41,7 @@ class BigImageView : View {
     //不同采样率对应不同切片
     private val tileMap = mutableMapOf<Int, List<Tile>>()
 
+    //临时记录 scale 和 translate
     private val satTmp = ScaleAndTranslate(0f, PointF(0f, 0f))
 
     // 当前缩放
@@ -40,12 +49,16 @@ class BigImageView : View {
     private var scaleStart = 0f
     private var vDistStart = 0f
 
+
+    //最大可放大倍数
+    private val maxScale = 2f
+    private val doubleTapZoomScale = 1f
+
     // 当前偏移
     private val vTranslate = PointF(0f, 0f)
     private val vTranslateStart = PointF(0f, 0f)
     private val vTranslateBefore = PointF(0f, 0f)
     private val vCenterStart = PointF(0f, 0f)
-
 
     //显示完整图片时的采样率
     private var fullImageSampleSize = 0
@@ -55,9 +68,7 @@ class BigImageView : View {
     private var maxTileHeight = Integer.MAX_VALUE
     private var minTileDpi: Float = -1f
 
-    //最大可放大倍数
-    private val maxScale = 2f
-
+    //切片是否准备好
     private var readySent = false
 
     //矩阵变换
@@ -73,21 +84,25 @@ class BigImageView : View {
 
     //手势
     private lateinit var detector: GestureDetector
-    private lateinit var singleGestureDetector: GestureDetector
-
-    //快速缩放
-    private var isQuickScaling = false
-
-    //两指缩放
-    private var isZooming = false
 
     //一指平移
     private var isPanning = false
 
-    //Max touches used in current gesture
+    //两指缩放
+    private var isZooming = false
+
+    //双击时快速缩放
+    private var isQuickScaling = false
+    private val quickScaleThreshold = dp2px(20f)
+    private val quickScale = QuickScale()
+
+    //当前手势有几根手指
     private var maxTouchCount = 0
 
+    //第一次加载时让图片居中
     private var isFirstTimeFitBounds = true
+
+    private var zoomAnim: ZoomAnim? = null
 
 
     constructor(context: Context?) : super(context)
@@ -154,6 +169,10 @@ class BigImageView : View {
         if (!checkReady()) return
 
         preDraw()
+
+//        if (zoomAnim != null) {
+//
+//        }
 
         if (tileMap.isNotEmpty() && isBaseLayerReady()) {
             val sampleSize = calculateInSampleSize(scale).coerceAtMost(fullImageSampleSize)
@@ -223,21 +242,35 @@ class BigImageView : View {
                 return true
             }
 
-            override fun onDoubleTap(e: MotionEvent?): Boolean {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                if (readySent) {
+                    vCenterStart.set(e.x, e.y)
+                    vTranslateStart.set(vTranslate)
+                    scaleStart = scale
+                    isQuickScaling = true
+                    isZooming = true
+                    quickScale.lastDistance = -1f
+                    quickScale.sourceStart.set(viewToSource(vCenterStart))
+                    quickScale.viewStart.set(e.x, e.y)
+                    quickScale.viewLastPoint.set(quickScale.sourceStart)
+                    quickScale.moved = false
+
+                    //为了让 onTouchEventInternal 继续后面的操作（比如 MOVE、UP）
+                    return false
+                }
                 return super.onDoubleTap(e)
             }
         })
-
-        singleGestureDetector =
-            GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-                override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                    performClick()
-                    return true
-                }
-            })
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        //动画执行时，忽略手势
+//        if (zoomAnim?.interruptable == false) {
+//            requestDisallowInterceptTouchEvent(true)
+//            return true
+//        } else {
+//            zoomAnim = null
+//        }
         //检测 flings、单击、双击
         if (!isQuickScaling && detector.onTouchEvent(event)) {
             isZooming = false
@@ -336,14 +369,39 @@ class BigImageView : View {
                             fitToBounds(true)
                             refreshRequireTiles()
                         }
-                    }
-                    if (consumed) {
-                        invalidate()
-                        return true
+                    } else if (isQuickScaling) {
+                        //双击时，第二次按下后不抬起直接拖动，可以缩放图片
+
+                        val dist =
+                            Math.abs(quickScale.viewStart.y - event.y) * 2 + quickScaleThreshold
+
+                        if (quickScale.lastDistance == -1f) {
+                            quickScale.lastDistance = dist
+                        }
+                        // TODO: viewLastPoint 在上面设置的是sourceStart，跟event.y比不应该是 viewStart吗
+                        val isUpwards = event.y > quickScale.viewLastPoint.y
+                        quickScale.viewLastPoint.set(0f, event.y)
+
+//                        val spanDiff = Math.abs()
+
+                    } else if (!isZooming) {
+
                     }
                 }
+                if (consumed) {
+                    invalidate()
+                    return true
+                }
+
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                if (isQuickScaling) {
+                    isQuickScaling = false
+                    //双击没有拖动，执行缩放图片动画
+                    if (!quickScale.moved) {
+                        doubleTapZoom(vCenterStart)
+                    }
+                }
                 //ACTION_POINTER_UP，抬起手指的数据还在。比如两根手指，抬起一根，pointerCount还是2。之后的move事件拿到的pointerCount才是1
                 if (maxTouchCount > 0 && (isZooming || isPanning)) {
                     if (isZooming && touchCount == 2) {
@@ -378,6 +436,76 @@ class BigImageView : View {
             }
         }
         return false
+    }
+
+    /**
+     * 双击缩放
+     */
+    private fun doubleTapZoom(downPoint: PointF) {
+        //按下点在原图中的位置
+        val sourceDownPoint = viewToSource(downPoint)
+        val doubleTapZoomScale = Math.min(maxScale, doubleTapZoomScale)
+        val zoomIn = scale <= doubleTapZoomScale * 0.9 || scale == minScale()
+        var targetScale = if (zoomIn) doubleTapZoomScale else minScale()
+        targetScale = limitScale(targetScale)
+
+
+
+
+        //以图片中心点 到 双击点 的缩放动画
+        val sCenterStart = viewToSource(PointF(width / 2f, height / 2f))
+
+        // TODO: 这里没看懂
+        val vTranslateXEnd = downPoint.x - targetScale * sCenterStart.x
+        val vTranslateYEnd = downPoint.y - targetScale * sCenterStart.y
+        val satEnd = ScaleAndTranslate(targetScale, PointF(vTranslateXEnd, vTranslateYEnd))
+        fitToBounds(true, satEnd)
+        val vFocusEnd = PointF(
+            downPoint.x + (satEnd.vTranslate.x - vTranslateXEnd),
+            downPoint.y + (satEnd.vTranslate.y - vTranslateYEnd)
+        )
+
+        zoomAnim = ZoomAnim(
+            scaleStart = scale,
+            scaleEnd = targetScale,
+            sCenterStart = sCenterStart,
+            sCenterEnd = sourceDownPoint,
+            vFocusStart = downPoint,
+            vFocusEnd = vFocusEnd
+        )
+
+        ValueAnimator.ofFloat(zoomAnim!!.scaleStart, zoomAnim!!.scaleEnd)
+            .apply {
+                duration = zoomAnim!!.duration
+                interpolator = AccelerateDecelerateInterpolator()
+                addUpdateListener {
+                    val anim = zoomAnim
+                    if (anim == null) {
+                        cancel()
+                        return@addUpdateListener
+                    }
+                    val value = it.animatedValue as Float
+                    val finished = value == 1f
+
+                    scale = it.animatedValue as Float
+
+                    val fraction = (scale - anim.scaleStart) / (anim.scaleEnd - anim.scaleStart)
+
+                    Log.d("===>", "scale:$scale,fraction:$fraction")
+
+                    val vFocusNowX =
+                        anim.vFocusStart.x + (anim.vFocusEnd.x - anim.vFocusStart.x) * fraction
+                    val vFocusNowY =
+                        anim.vFocusStart.y + (anim.vFocusEnd.y - anim.vFocusStart.y) * fraction
+
+                    vTranslate.x -= sourceToViewX(anim.sCenterEnd.x) - vFocusNowX
+                    vTranslate.y -= sourceToViewY(anim.sCenterEnd.y) - vFocusNowY
+
+                    fitToBounds(finished)
+                    refreshRequireTiles(false)
+                    invalidate()
+                }
+            }.start()
     }
 
     private fun distance(x0: Float, x1: Float, y0: Float, y1: Float): Float {
@@ -418,21 +546,21 @@ class BigImageView : View {
     /**
      * 原始切片经过 缩放偏移后 的Rect
      */
-    private fun sourceToViewRect(sRect: Rect, vTarget: RectF) {
-        fun sourceToViewX(sx: Int): Float {
-            return (sx * scale + vTranslate.x)
-        }
-
-        fun sourceToViewY(sy: Int): Float {
-            return (sy * scale + vTranslate.y)
-        }
-
+    private fun sourceToViewRect(sRect: RectF, vTarget: RectF) {
         vTarget.set(
             sourceToViewX(sRect.left),
             sourceToViewY(sRect.top),
             sourceToViewX(sRect.right),
             sourceToViewY(sRect.bottom)
         )
+    }
+
+    private fun sourceToViewX(sx: Float): Float {
+        return (sx * scale + vTranslate.x)
+    }
+
+    private fun sourceToViewY(sy: Float): Float {
+        return (sy * scale + vTranslate.y)
     }
 
     private fun viewToSourceX(vx: Float): Float {
@@ -443,6 +571,9 @@ class BigImageView : View {
         return (vy - vTranslate.y) / scale
     }
 
+    private fun viewToSource(point: PointF): PointF {
+        return PointF(viewToSourceX(point.x), viewToSourceY(point.y))
+    }
 
     private fun preDraw() {
         if (width == 0 || height == 0 || imgWidth <= 0 || imgHeight <= 0) return
@@ -533,10 +664,10 @@ class BigImageView : View {
                         Tile(
                             sampleSize = sampleSize,
                             visible = sampleSize == fullImageSampleSize, //默认展示完整图片，所以采样率为fullImageSampleSize是tile可见
-                            sRect = Rect(
-                                x * tileWidth, y * tileHeight,
-                                if (x == xTiles - 1) imgWidth else (x + 1) * tileWidth,
-                                if (y == yTiles - 1) imgHeight else (y + 1) * tileHeight
+                            sRect = RectF(
+                                (x * tileWidth).toFloat(), (y * tileHeight).toFloat(),
+                                (if (x == xTiles - 1) imgWidth else (x + 1) * tileWidth).toFloat(),
+                                (if (y == yTiles - 1) imgHeight else (y + 1) * tileHeight).toFloat()
                             ),
                             vRect = RectF(0f, 0f, 0f, 0f),
                         )
@@ -554,7 +685,7 @@ class BigImageView : View {
         }
     }
 
-    private fun refreshRequireTiles() {
+    private fun refreshRequireTiles(load: Boolean = true) {
         if (imageRegionDecoder == null || tileMap.isEmpty()) return
         val mDecoder = imageRegionDecoder ?: return
         val sampleSize = calculateInSampleSize(scale).coerceAtMost(fullImageSampleSize)
@@ -570,7 +701,7 @@ class BigImageView : View {
                 if (tile.sampleSize == sampleSize) {
                     if (tileVisible(tile)) {
                         tile.visible = true
-                        if (!tile.loading && tile.bitmap == null) {
+                        if (!tile.loading && tile.bitmap == null && load) {
                             TileLoadTask(this, mDecoder, tile).execute()
                         }
                     } else if (tile.sampleSize != fullImageSampleSize) {
@@ -604,7 +735,7 @@ class BigImageView : View {
         //第一次加载，设置图片居中
         if (isFirstTimeFitBounds) {
             isFirstTimeFitBounds = false
-            vTranslate.set(translateToCenter(scale))
+            vTranslate.set(translateToSCenter(imgWidth / 2f, imgHeight / 2f, scale))
         }
     }
 
@@ -634,42 +765,23 @@ class BigImageView : View {
             vTranslate.y = vTranslate.y.coerceAtLeast(-scaleHeight)
                 .coerceAtMost(height.toFloat())
         }
-
-//        if (center) {
-//            vTranslate.x = Math.max(vTranslate.x, width - scaleWidth)
-//            vTranslate.y = Math.max(vTranslate.y, height - scaleHeight)
-//        } else {
-//            // TODO: 这里没看懂
-//            vTranslate.x = Math.max(vTranslate.x, -scaleWidth)
-//            vTranslate.y = Math.max(vTranslate.y, -scaleHeight)
-//        }
-//
-//
-//        val maxTx: Float
-//        val maxTy: Float
-//        if (center) {
-//            maxTx = Math.max(0f, (width - scaleWidth) * xPaddingRatio)
-//            maxTy = Math.max(0f, (height - scaleHeight) * yPaddingRatio)
-//        } else {
-//            maxTx = Math.max(0f, width.toFloat())
-//            maxTy = Math.max(0f, height.toFloat())
-//        }
-//6
-//        vTranslate.x = Math.min(vTranslate.x, maxTx)
-//        vTranslate.y = Math.min(vTranslate.y, maxTy)
     }
 
     /**
      * 居中偏移
      */
-    private fun translateToCenter(scale: Float): PointF {
+    private fun translateToSCenter(sCenterX: Float, sCenterY: Float, scale: Float): PointF {
         satTmp.vTranslate.set(
-            width / 2f - (imgWidth / 2f * scale),
-            height / 2f - (imgHeight / 2f * scale)
+            width / 2f - (sCenterX * scale),
+            height / 2f - (sCenterY * scale)
         )
         fitToBounds(true, satTmp)
         return satTmp.vTranslate
     }
+
+//    private fun limitSCenter(sCenterX: Float, sCenterY: Float, scale: Float): PointF {
+//
+//    }
 
     /**
      * 限制scale范围
@@ -754,7 +866,7 @@ class BigImageView : View {
     /**
      * 初始化decoder，确定图片尺寸
      */
-    class TileInitTask(
+    private inner class TileInitTask(
         bigImageView: BigImageView,
         context: Context,
         decoderFactory: DecoderFactory<out ImageRegionDecoder>,
@@ -793,7 +905,11 @@ class BigImageView : View {
     /**
      * 加载切片
      */
-    class TileLoadTask(bigImageView: BigImageView, decoder: ImageRegionDecoder, tile: Tile) :
+    private inner class TileLoadTask(
+        bigImageView: BigImageView,
+        decoder: ImageRegionDecoder,
+        tile: Tile
+    ) :
         AsyncTask<Void, Void, Bitmap?>() {
 
         private val viewRef = WeakReference(bigImageView)
@@ -808,7 +924,7 @@ class BigImageView : View {
                 view.decoderLock.readLock().lock()
                 try {
                     if (decoder.isReady()) {
-                        return decoder.decodeRegion(tile.sRect, tile.sampleSize)
+                        return decoder.decodeRegion(tile.sRect.toRect(), tile.sampleSize)
                     } else {
                         tile.loading = false
                     }
@@ -833,5 +949,59 @@ class BigImageView : View {
             }
         }
 
+    }
+
+    private inner class QuickScale {
+        var lastDistance = 0f
+
+        //双击（第二次按下）后是否直接拖动
+        var moved = false
+        val viewLastPoint = PointF(0f, 0f)
+        val sourceStart = PointF(0f, 0f)
+        val viewStart = PointF(0f, 0f)
+
+//        fun down(){
+//            lastDistance = -1f
+//            sourceStart.set(viewToSource(vCenterStart))
+//            viewStart.set(e.x, e.y)
+//            viewLastPoint.set(sourceStart)
+//            moved = false
+//        }
+    }
+
+    private inner class ZoomAnimBuilder(
+        private var targetScale: Float,
+        private var targetSCenter: PointF,
+        private val viewFocus: PointF
+    ) {
+
+        var panLimited = true
+
+        fun build(): ZoomAnim {
+            val scaleStart = scale
+            targetScale = limitScale(targetScale)
+            //以图片中心点 到 双击点 的缩放动画
+            val sCenterStart = viewToSource(PointF(width / 2f, height / 2f))
+            val sCenterEnd = targetSCenter
+            val vFocusStart = viewFocus
+
+            val vTranslateXEnd = viewFocus.x - targetScale * sCenterStart.x
+            val vTranslateYEnd = viewFocus.y - targetScale * sCenterStart.y
+            val satEnd = ScaleAndTranslate(targetScale, PointF(vTranslateXEnd, vTranslateYEnd))
+            fitToBounds(true, satEnd)
+            val vFocusEnd = PointF(
+                viewFocus.x + (satEnd.vTranslate.x - vTranslateXEnd),
+                viewFocus.y + (satEnd.vTranslate.y - vTranslateYEnd)
+            )
+
+            return ZoomAnim(
+                scaleStart = scaleStart,
+                scaleEnd = targetScale,
+                sCenterStart = sCenterStart,
+                sCenterEnd = sCenterEnd,
+                vFocusStart = vFocusStart,
+                vFocusEnd = vFocusEnd
+            )
+        }
     }
 }
