@@ -1,8 +1,5 @@
 package com.cnting.bitmap.bigimg
 
-import android.animation.Animator
-import android.animation.ObjectAnimator
-import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
@@ -102,8 +99,6 @@ class BigImageView : View {
     //第一次加载时让图片居中
     private var isFirstTimeFitBounds = true
 
-    private var zoomAnim: ZoomAnim? = null
-
 
     constructor(context: Context?) : super(context)
 
@@ -169,10 +164,6 @@ class BigImageView : View {
         if (!checkReady()) return
 
         preDraw()
-
-//        if (zoomAnim != null) {
-//
-//        }
 
         if (tileMap.isNotEmpty() && isBaseLayerReady()) {
             val sampleSize = calculateInSampleSize(scale).coerceAtMost(fullImageSampleSize)
@@ -372,17 +363,6 @@ class BigImageView : View {
                     } else if (isQuickScaling) {
                         //双击时，第二次按下后不抬起直接拖动，可以缩放图片
 
-                        val dist =
-                            Math.abs(quickScale.viewStart.y - event.y) * 2 + quickScaleThreshold
-
-                        if (quickScale.lastDistance == -1f) {
-                            quickScale.lastDistance = dist
-                        }
-                        // TODO: viewLastPoint 在上面设置的是sourceStart，跟event.y比不应该是 viewStart吗
-                        val isUpwards = event.y > quickScale.viewLastPoint.y
-                        quickScale.viewLastPoint.set(0f, event.y)
-
-//                        val spanDiff = Math.abs()
 
                     } else if (!isZooming) {
 
@@ -446,63 +426,45 @@ class BigImageView : View {
         val sourceDownPoint = viewToSource(downPoint)
         val doubleTapZoomScale = Math.min(maxScale, doubleTapZoomScale)
         val zoomIn = scale <= doubleTapZoomScale * 0.9 || scale == minScale()
-        var targetScale = if (zoomIn) doubleTapZoomScale else minScale()
-        targetScale = limitScale(targetScale)
+        val scaleStart = scale
+        var scaleEnd = if (zoomIn) doubleTapZoomScale else minScale()
+        scaleEnd = limitScale(scaleEnd)
 
-
-
-
-        //以图片中心点 到 双击点 的缩放动画
+        // TODO: 未完成，这里看不懂
+        //距离中心位置的偏移
         val sCenterStart = viewToSource(PointF(width / 2f, height / 2f))
-
-        // TODO: 这里没看懂
-        val vTranslateXEnd = downPoint.x - targetScale * sCenterStart.x
-        val vTranslateYEnd = downPoint.y - targetScale * sCenterStart.y
-        val satEnd = ScaleAndTranslate(targetScale, PointF(vTranslateXEnd, vTranslateYEnd))
+        val vTranslateXEnd = downPoint.x - scaleEnd * sCenterStart.x
+        val vTranslateYEnd = downPoint.y - scaleEnd * sCenterStart.y
+        val satEnd = ScaleAndTranslate(scaleEnd, PointF(vTranslateXEnd, vTranslateYEnd))
+        //计算结束位置不超出边界
         fitToBounds(true, satEnd)
         val vFocusEnd = PointF(
             downPoint.x + (satEnd.vTranslate.x - vTranslateXEnd),
             downPoint.y + (satEnd.vTranslate.y - vTranslateYEnd)
         )
 
-        zoomAnim = ZoomAnim(
-            scaleStart = scale,
-            scaleEnd = targetScale,
-            sCenterStart = sCenterStart,
-            sCenterEnd = sourceDownPoint,
-            vFocusStart = downPoint,
-            vFocusEnd = vFocusEnd
-        )
-
-        ValueAnimator.ofFloat(zoomAnim!!.scaleStart, zoomAnim!!.scaleEnd)
+        ValueAnimator.ofFloat(scaleStart, scaleEnd)
             .apply {
-                duration = zoomAnim!!.duration
+                duration = 500
                 interpolator = AccelerateDecelerateInterpolator()
                 addUpdateListener {
-                    val anim = zoomAnim
-                    if (anim == null) {
-                        cancel()
-                        return@addUpdateListener
-                    }
-                    val value = it.animatedValue as Float
-                    val finished = value == 1f
-
                     scale = it.animatedValue as Float
 
-                    val fraction = (scale - anim.scaleStart) / (anim.scaleEnd - anim.scaleStart)
+                    val fraction = (scale - scaleStart) / (scaleEnd - scaleStart)
+                    val finished = fraction == 1f
 
                     Log.d("===>", "scale:$scale,fraction:$fraction")
 
                     val vFocusNowX =
-                        anim.vFocusStart.x + (anim.vFocusEnd.x - anim.vFocusStart.x) * fraction
+                        downPoint.x + (vFocusEnd.x - downPoint.x) * fraction
                     val vFocusNowY =
-                        anim.vFocusStart.y + (anim.vFocusEnd.y - anim.vFocusStart.y) * fraction
+                        downPoint.y + (vFocusEnd.y - downPoint.y) * fraction
 
-                    vTranslate.x -= sourceToViewX(anim.sCenterEnd.x) - vFocusNowX
-                    vTranslate.y -= sourceToViewY(anim.sCenterEnd.y) - vFocusNowY
+                    vTranslate.x -= sourceToViewX(sourceDownPoint.x) - vFocusNowX
+                    vTranslate.y -= sourceToViewY(sourceDownPoint.y) - vFocusNowY
 
                     fitToBounds(finished)
-                    refreshRequireTiles(false)
+                    refreshRequireTiles(finished)
                     invalidate()
                 }
             }.start()
@@ -779,10 +741,6 @@ class BigImageView : View {
         return satTmp.vTranslate
     }
 
-//    private fun limitSCenter(sCenterX: Float, sCenterY: Float, scale: Float): PointF {
-//
-//    }
-
     /**
      * 限制scale范围
      */
@@ -967,41 +925,5 @@ class BigImageView : View {
 //            viewLastPoint.set(sourceStart)
 //            moved = false
 //        }
-    }
-
-    private inner class ZoomAnimBuilder(
-        private var targetScale: Float,
-        private var targetSCenter: PointF,
-        private val viewFocus: PointF
-    ) {
-
-        var panLimited = true
-
-        fun build(): ZoomAnim {
-            val scaleStart = scale
-            targetScale = limitScale(targetScale)
-            //以图片中心点 到 双击点 的缩放动画
-            val sCenterStart = viewToSource(PointF(width / 2f, height / 2f))
-            val sCenterEnd = targetSCenter
-            val vFocusStart = viewFocus
-
-            val vTranslateXEnd = viewFocus.x - targetScale * sCenterStart.x
-            val vTranslateYEnd = viewFocus.y - targetScale * sCenterStart.y
-            val satEnd = ScaleAndTranslate(targetScale, PointF(vTranslateXEnd, vTranslateYEnd))
-            fitToBounds(true, satEnd)
-            val vFocusEnd = PointF(
-                viewFocus.x + (satEnd.vTranslate.x - vTranslateXEnd),
-                viewFocus.y + (satEnd.vTranslate.y - vTranslateYEnd)
-            )
-
-            return ZoomAnim(
-                scaleStart = scaleStart,
-                scaleEnd = targetScale,
-                sCenterStart = sCenterStart,
-                sCenterEnd = sCenterEnd,
-                vFocusStart = vFocusStart,
-                vFocusEnd = vFocusEnd
-            )
-        }
     }
 }
