@@ -18,8 +18,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".RemoteActivity"
+            android:name=".imagebinder.RemoteActivity"
             android:process=":remote" />
+        <activity android:name=".bigimg.BigImageActivity" />
     </application>
 
 </manifest>

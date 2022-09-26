@@ -1,10 +1,11 @@
-package com.cnting.bitmap
+package com.cnting.bitmap.imagebinder
 
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.cnting.bitmap.IRemoteBitmapService
 
 /**
  * Created by cnting on 2021/8/30
@@ -15,8 +16,9 @@ class RemoteActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val bundle = intent?.extras
-        val imageBinder = bundle?.getBinder("bitmap") as ImageBinder
-        val bitmap = imageBinder.bitmap
+        val imageBinder = bundle?.getBinder("bitmap")
+        val bitmapService: IRemoteBitmapService = IRemoteBitmapService.Stub.asInterface(imageBinder)
+        val bitmap = bitmapService.intentBitmap
         val imageView = ImageView(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
