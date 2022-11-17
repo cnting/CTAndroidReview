@@ -11,6 +11,7 @@ import android.util.Log
 import com.cnting.ipc.aidl.BookManagerActivity
 import com.cnting.ipc.aidl.IBigBitmapManager
 import com.cnting.ipc.bigfile.BigFileActivity
+import com.cnting.ipc.binderpool.TestBinderPoolActivity
 import com.cnting.ipc.contentprovider.ProviderActivity
 import com.cnting.ipc.messenger.MessengerActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -39,6 +40,9 @@ class MainActivity : AppCompatActivity() {
             }
             intent.putExtras(bundle)
             startActivity(intent)
+        }
+        binderPoolBtn.setOnClickListener {
+            startActivity(Intent(this, TestBinderPoolActivity::class.java))
         }
 
 

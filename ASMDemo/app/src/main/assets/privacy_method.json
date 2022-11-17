@@ -7,6 +7,10 @@
     {
       "name_regex": "android.telephony.TelephonyManager.listen",
       "message": "监听呼入电话信息"
+    },
+    {
+      "name_regex": "android.provider.Settings.Secure.getString",
+      "message": "可能获取AndroidId"
     }
   ]
 }

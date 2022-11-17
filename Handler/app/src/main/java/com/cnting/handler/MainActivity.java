@@ -3,6 +3,7 @@ package com.cnting.handler;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,48 +20,95 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
 public class MainActivity extends AppCompatActivity {
+
+    AlertDialog alertDialog;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
+
+
+        new Thread(new Runnable() {
             @Override
-            public void onClick(View v) {
-                ViewPropertyAnimator animator = v.animate().scaleY(2).setDuration(2000);
-                animator.start();
-                v.postDelayed(new Runnable() {
+            public void run() {
+                Looper.prepare();
+                new Handler().post(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            Thread.sleep(1000);  //让主线程卡顿
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+//                        Toast.makeText(MainActivity.this, "toast", Toast.LENGTH_LONG).show();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("ddd");
+                        alertDialog = builder.create();
+                        alertDialog.show();
+                        alertDialog.hide();
                     }
-                }, 1000);
+                });
+                Looper.loop();
+            }
+        }).start();
+
+
+
+        Button btn1 = findViewById(R.id.btn1);
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.show();
+//                throw new RuntimeException("主线程异常");
             }
         });
         findViewById(R.id.btn2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ViewPropertyAnimator animator = v.animate().scaleY(2).setDuration(2000);
-                setViewPropertyAnimatorRT(animator, createViewPropertyAnimatorRT(v));
-                animator.start();
-                v.postDelayed(new Runnable() {
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            Thread.sleep(1000);  //让主线程卡顿
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        throw new NumberFormatException("子线程异常");
                     }
-                }, 1000);
+                }).start();
             }
         });
 
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.
+        btn1.post()
+
+//        findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ViewPropertyAnimator animator = v.animate().scaleY(2).setDuration(2000);
+//                animator.start();
+//                v.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            Thread.sleep(1000);  //让主线程卡顿
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }, 1000);
+//            }
+//        });
+//        findViewById(R.id.btn2).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ViewPropertyAnimator animator = v.animate().scaleY(2).setDuration(2000);
+//                setViewPropertyAnimatorRT(animator, createViewPropertyAnimatorRT(v));
+//                animator.start();
+//                v.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            Thread.sleep(1000);  //让主线程卡顿
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }, 1000);
+//            }
+//        });
+//
+//        Handler handler = new Handler(Looper.getMainLooper());
 
     }
 

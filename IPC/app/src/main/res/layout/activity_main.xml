@@ -31,4 +31,10 @@
         android:layout_height="wrap_content"
         android:text="进程间传递大文件" />
 
+    <Button
+        android:id="@+id/binderPoolBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="binder池" />
+
 </LinearLayout>

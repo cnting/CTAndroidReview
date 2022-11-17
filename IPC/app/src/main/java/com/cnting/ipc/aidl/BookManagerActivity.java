@@ -33,6 +33,8 @@ public class BookManagerActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             bookManager = IBookManager.Stub.asInterface(service);
             try {
+                service.linkToDeath(deathRecipient, 0);
+
                 List<Book> books = bookManager.getBookList();
                 Log.d("===>", "onServiceConnected():" + books.toString() + ",当前线程:" + Thread.currentThread().getName());
                 Book book = new Book(3, "Android开发艺术探索");
@@ -47,8 +49,21 @@ public class BookManagerActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.d("===>", "onServiceDisconnected()");
+            Log.e("===>", "onServiceDisconnected()，当前线程:" + Thread.currentThread().getName());
             bookManager = null;
+        }
+    };
+
+    private IBinder.DeathRecipient deathRecipient = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            Log.e("===>", "binderDied(),当前线程:" + Thread.currentThread().getName() + ",bookManager:" + bookManager);
+            if (bookManager == null) {
+                return;
+            }
+            bookManager.asBinder().unlinkToDeath(deathRecipient, 0);
+            bookManager = null;
+
         }
     };
 

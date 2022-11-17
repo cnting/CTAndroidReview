@@ -3,6 +3,7 @@ package com.example.asmdemo
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Bundle
+import android.provider.Settings
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.widget.CheckBox
@@ -16,9 +17,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        testRuntimeHook()
+        testRuntimeHook()
+
 
         tv = findViewById(R.id.tv)
+
         findViewById<CheckBox>(R.id.checkbox).setOnCheckedChangeListener { buttonView, isChecked ->
             PrivacyUtil.isAgreePrivacy = isChecked
             testCompileHook()
@@ -40,6 +43,8 @@ class MainActivity : AppCompatActivity() {
         telephoneManager.listen(object : PhoneStateListener() {
 
         }, 0)
+
+        val androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)
     }
 
     /**
@@ -49,7 +54,9 @@ class MainActivity : AppCompatActivity() {
         val activityManager: ActivityManager =
             getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val result = activityManager.runningAppProcesses
-        tv.text = "查询结果：${result.size}"
+
+        val androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)
+        tv.text = "查询结果：${result.size}\n androidId:$androidId"
     }
 
 }

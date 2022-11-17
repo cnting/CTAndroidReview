@@ -39,8 +39,9 @@ class HookPrivacyMethod {
                 DexposedBridge.hookAllMethods(lintClass, methodName, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam?) {
                         super.beforeHookedMethod(param)
-                        Log.i("===>", "beforeHookedMethod $className.$methodName")
-                        Log.i("===>", "stack=" + Log.getStackTraceString(Throwable()))
+                        Log.i("===>", "beforeHookedMethod $className.$methodName，args:${param?.args?.contentToString()}")
+
+                        Log.w("===>", "stack=" + Log.getStackTraceString(Throwable()))
                     }
                 })
             } catch (e: Exception) {

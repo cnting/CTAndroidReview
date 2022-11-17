@@ -5,9 +5,10 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="第二个页面"
+        android:text="这是第二个页面"
         android:textColor="@android:color/holo_green_dark"
         android:textSize="23sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -19,7 +20,7 @@
         android:id="@+id/btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="点我发送数据"
+        android:text="跳转下一个页面"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

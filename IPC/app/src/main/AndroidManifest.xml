@@ -35,6 +35,11 @@
             android:authorities="com.cnting.ipc.contentprovider.BookProvider"
             android:permission="com.cnting.provider"
             android:process=":provider" />
+
+        <service
+            android:name=".binderpool.BinderPoolService"
+            android:process=":binder_pool" />
+        <activity android:name=".binderpool.TestBinderPoolActivity" />
     </application>
 
 </manifest>

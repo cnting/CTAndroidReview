@@ -36,7 +36,11 @@ class MethodReplaceClassAdapter(
             logger.info("===>忽略注解类:${classNode.name}")
             return
         }
+
         classNode.methods.forEach { methodNode ->
+            logger.warn("===>" + classNode.name + "#" + methodNode.name)
+
+
             //instructions表示指令
             //tip：为什么要遍历每个方法的字节码指令？因为需要hook的方法是系统的方法，没有被打包到apk中， 单纯遍历方法名是找不到的，必须遍历每个方法里面调用的字节码指令。
             methodNode.instructions?.iterator()?.forEach { insnNode ->
