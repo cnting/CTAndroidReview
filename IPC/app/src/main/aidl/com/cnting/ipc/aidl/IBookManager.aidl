@@ -5,7 +5,12 @@ import com.cnting.ipc.aidl.IOnNewBookArrivedListener;
 
 interface IBookManager {
     List<Book> getBookList();
-    void addBook(in Book book);
+    Book addInBook(in Book book);
+    Book addOutBook(out Book book);
+    Book addInoutBook(inout Book book);
     void registerListener(IOnNewBookArrivedListener listener);
     void unregisterListener(IOnNewBookArrivedListener listener);
+
+     oneway void testOneway(in Book book);
+     Book testNoOneway(out Book book);
 }

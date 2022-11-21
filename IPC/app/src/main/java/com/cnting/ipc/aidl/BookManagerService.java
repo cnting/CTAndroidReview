@@ -28,15 +28,34 @@ public class BookManagerService extends Service {
     private Binder binder = new IBookManager.Stub() {
         @Override
         public List<Book> getBookList() throws RemoteException {
-            SystemClock.sleep(5000);
+//            SystemClock.sleep(5000);
             return bookList;
         }
 
         @Override
-        public void addBook(Book book) throws RemoteException {
-            Log.d("===>", "addBook() 当前线程:" + Thread.currentThread().getName());
+        public Book addInBook(Book book) throws RemoteException {
+            book.bookId = -1;
+            book.bookName = book.bookName + "-in";
             bookList.add(book);
+            return book;
         }
+
+        @Override
+        public Book addOutBook(Book book) throws RemoteException {
+            book.bookId = -1;
+            book.bookName = book.bookName + "-out";
+            bookList.add(book);
+            return book;
+        }
+
+        @Override
+        public Book addInoutBook(Book book) throws RemoteException {
+            book.bookId = -1;
+            book.bookName = book.bookName + "-inout";
+            bookList.add(book);
+            return book;
+        }
+
 
         @Override
         public void registerListener(IOnNewBookArrivedListener listener) throws RemoteException {
@@ -55,6 +74,29 @@ public class BookManagerService extends Service {
             listeners.finishBroadcast();
             Log.d("===>", "unregisterListener()：" + size);
         }
+
+        @Override
+        public void testOneway(Book book) throws RemoteException {
+            Log.d("===>", "服务端：test oneway start");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Log.d("===>", "服务端：test oneway end");
+        }
+
+        @Override
+        public Book testNoOneway(Book book) throws RemoteException {
+            Log.d("===>", "服务端：test no oneway start");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Log.d("===>", "服务端：test no oneway end");
+            return null;
+        }
     };
 
 
@@ -63,7 +105,9 @@ public class BookManagerService extends Service {
         super.onCreate();
         bookList.add(new Book(1, "Android"));
         bookList.add(new Book(2, "iOS"));
-        new Thread(new ServiceWorker()).start();
+
+        //listener 测试
+//        new Thread(new ServiceWorker()).start();
     }
 
     @Nullable

@@ -38,7 +38,7 @@ public class BookManagerActivity extends AppCompatActivity {
                 List<Book> books = bookManager.getBookList();
                 Log.d("===>", "onServiceConnected():" + books.toString() + ",当前线程:" + Thread.currentThread().getName());
                 Book book = new Book(3, "Android开发艺术探索");
-                bookManager.addBook(book);
+                bookManager.addInBook(book);
                 books = bookManager.getBookList();
                 Log.d("===>", "添加一本书后:" + books.toString());
                 bookManager.registerListener(listener);
@@ -125,5 +125,67 @@ public class BookManagerActivity extends AppCompatActivity {
             }
         }
         unbindService(serviceConnection);
+    }
+
+    public void testIn(View view) {
+        Book book = new Book(1, "in");
+        System.out.println("============ test in");
+        System.out.println("source:" + book);
+        try {
+            System.out.println(">>>>>>>");
+            Book result = bookManager.addInBook(book);
+            System.out.println("result:" + result);
+            System.out.println("after source:" + book);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testOut(View view) {
+        Book book = new Book(2, "out");
+        System.out.println("============ test out");
+        System.out.println("source:" + book);
+        try {
+            System.out.println(">>>>>>>");
+            Book result = bookManager.addOutBook(book);
+            System.out.println("result:" + result);
+            System.out.println("after source:" + book);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testInOut(View view) {
+        Book book = new Book(3, "inout");
+        System.out.println("============ test inout");
+        System.out.println("source:" + book);
+        try {
+            System.out.println(">>>>>>>");
+            Book result = bookManager.addInoutBook(book);
+            System.out.println("result:" + result);
+            System.out.println("after source:" + book);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testOneway(View view) {
+        System.out.println("客户端：before test oneway");
+        try {
+            bookManager.testOneway(new Book(1, ""));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        System.out.println("客户端：after test oneway");
+    }
+
+    public void testNoOneway(View view) {
+        System.out.println("客户端：before test no oneway");
+        try {
+            bookManager.testNoOneway(new Book(1, ""));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        System.out.println("客户端：after test no oneway");
     }
 }
