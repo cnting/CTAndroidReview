@@ -14,6 +14,7 @@ import com.cnting.ipc.bigfile.BigFileActivity
 import com.cnting.ipc.binderpool.TestBinderPoolActivity
 import com.cnting.ipc.contentprovider.ProviderActivity
 import com.cnting.ipc.messenger.MessengerActivity
+import com.cnting.ipc.sharememory.TestShareMemoryActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -45,11 +46,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, TestBinderPoolActivity::class.java))
         }
 
-
-        Log.d(
-            "===>",
-            "activity:$this,view.context:${bigFileBtn.context},packageName:${bigFileBtn.context.packageName}"
-        )
+        shareMemoryBtn.setOnClickListener {
+            startActivity(Intent(this, TestShareMemoryActivity::class.java))
+        }
     }
 
 }

@@ -40,6 +40,11 @@
             android:name=".binderpool.BinderPoolService"
             android:process=":binder_pool" />
         <activity android:name=".binderpool.TestBinderPoolActivity" />
+
+        <service
+            android:name=".sharememory.ShareMemoryService"
+            android:process=":share_memory" />
+        <activity android:name=".sharememory.TestShareMemoryActivity" />
     </application>
 
 </manifest>

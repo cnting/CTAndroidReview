@@ -37,4 +37,10 @@
         android:layout_height="wrap_content"
         android:text="binder池" />
 
+    <Button
+        android:id="@+id/shareMemoryBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="共享内存" />
+
 </LinearLayout>
