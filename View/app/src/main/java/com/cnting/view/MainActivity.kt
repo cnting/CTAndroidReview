@@ -1,10 +1,9 @@
 package com.cnting.view
 
-import android.content.Intent
+import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.cnting.view.scroll_conflict.TestScrollConflictActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,6 +12,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun testScrollConflictBtn(view: View) {
-        startActivity(Intent(this, TestScrollConflictActivity::class.java))
+//        startActivity(Intent(this, TestScrollConflictActivity::class.java))
+        val dialog = Dialog(this)
+        dialog.setTitle("sssss")
+        dialog.show()
     }
 }
