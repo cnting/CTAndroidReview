@@ -9,18 +9,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".test_lifecycle.TestLifecycleActivity" />
-        <activity android:name=".test_fragment_manager.TestFragmentManagerActivity" />
-        <activity android:name=".test_with_viewpager.TestWithViewPagerActivity" />
-        <activity android:name=".test_backstack.TestBackStackActivity" />
-        <activity android:name=".test_send_msg.TestSendMsgActivity" />
+        <activity
+            android:name=".test_lifecycle.TestLifecycleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".test_fragment_manager.TestFragmentManagerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".test_with_viewpager.TestWithViewPagerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".test_backstack.TestBackStackActivity"
+            android:exported="false" />
+        <activity
+            android:name=".test_send_msg.TestSendMsgActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
