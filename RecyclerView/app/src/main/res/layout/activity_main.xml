@@ -40,4 +40,25 @@
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
         android:text="测试卡片释放时机" />
+
+    <Button
+        android:id="@+id/testDeleteAnimateBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="删除item引起的布局动画过程" />
+
+    <Button
+        android:id="@+id/barrageBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="动画实现弹幕" />
+    <Button
+        android:id="@+id/barrageBtn2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="自定义LayoutManager实现弹幕" />
+
 </LinearLayout>

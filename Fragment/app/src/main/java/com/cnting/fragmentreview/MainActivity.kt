@@ -6,6 +6,7 @@ import android.os.Bundle
 import com.cnting.fragmentreview.test_backstack.TestBackStackActivity
 import com.cnting.fragmentreview.test_fragment_manager.TestFragmentManagerActivity
 import com.cnting.fragmentreview.test_lifecycle.TestLifecycleActivity
+import com.cnting.fragmentreview.test_navigation.TestNavigationActivity
 import com.cnting.fragmentreview.test_send_msg.TestSendMsgActivity
 import com.cnting.fragmentreview.test_with_viewpager.TestWithViewPagerActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -51,6 +52,14 @@ class MainActivity : AppCompatActivity() {
                 Intent(
                     this,
                     TestSendMsgActivity::class.java
+                )
+            )
+        }
+        testNavigation.setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    TestNavigationActivity::class.java
                 )
             )
         }

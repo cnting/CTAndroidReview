@@ -26,6 +26,9 @@
         <activity android:name=".item_touch_helper.ItemTouchHelperActivity" />
         <activity android:name=".card_swipe.CardSwipeActivity" />
         <activity android:name=".release_time.ReleaseTimeActivity" />
+        <activity android:name=".test_animate.TestAnimateActivity" />
+        <activity android:name=".barrage.animate.BarrageActivity" />
+        <activity android:name=".barrage.recyclerview.BarrageActivity2" />
     </application>
 
 </manifest>
