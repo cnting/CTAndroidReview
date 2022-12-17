@@ -29,6 +29,7 @@
         <activity android:name=".test_animate.TestAnimateActivity" />
         <activity android:name=".barrage.animate.BarrageActivity" />
         <activity android:name=".barrage.recyclerview.BarrageActivity2" />
+        <activity android:name=".item_visibility.TestItemVisibilityActivity"/>
     </application>
 
 </manifest>

@@ -23,10 +23,10 @@ class CustomItemTouchCallback(private val itemTouchListener: CustomItemTouchList
         viewHolder: RecyclerView.ViewHolder
     ): Int {
         //上下拖动
-        val dragFrag = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+        val dragFlag = ItemTouchHelper.UP or ItemTouchHelper.DOWN
         //左右滑动
         val swipeFlag = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        return makeMovementFlags(dragFrag, swipeFlag)
+        return makeMovementFlags(dragFlag, swipeFlag)
     }
 
     /**

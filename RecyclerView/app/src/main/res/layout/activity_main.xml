@@ -1,64 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/staggerBtn"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:text="瀑布流" />
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/layoutManagerBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:text="自定义LayoutManager" />
+        <Button
+            android:id="@+id/staggerBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="瀑布流" />
 
-    <Button
-        android:id="@+id/itemTouchHelperBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:text="自定义ItemTouchHelper" />
+        <Button
+            android:id="@+id/layoutManagerBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="自定义LayoutManager" />
 
-    <Button
-        android:id="@+id/cardSwipeBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:text="切换卡片" />
+        <Button
+            android:id="@+id/itemTouchHelperBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="自定义ItemTouchHelper" />
 
-    <Button
-        android:id="@+id/releaseTimeBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:text="测试卡片释放时机" />
+        <Button
+            android:id="@+id/cardSwipeBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="切换卡片" />
 
-    <Button
-        android:id="@+id/testDeleteAnimateBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:text="删除item引起的布局动画过程" />
+        <Button
+            android:id="@+id/releaseTimeBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="测试卡片释放时机" />
 
-    <Button
-        android:id="@+id/barrageBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:text="动画实现弹幕" />
-    <Button
-        android:id="@+id/barrageBtn2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:text="自定义LayoutManager实现弹幕" />
+        <Button
+            android:id="@+id/testDeleteAnimateBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="notifyItemXXX 引起的布局动画过程" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/barrageBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="动画实现弹幕" />
+
+        <Button
+            android:id="@+id/barrageBtn2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="自定义LayoutManager实现弹幕" />
+
+        <Button
+            android:id="@+id/testVisibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="检测item可见性" />
+
+    </LinearLayout>
+</ScrollView>

@@ -8,6 +8,7 @@ import com.cnting.recyclerview.barrage.recyclerview.BarrageActivity2
 import com.cnting.recyclerview.card_swipe.CardSwipeActivity
 import com.cnting.recyclerview.custom_layoutmanager.CustomLayoutManagerActivity
 import com.cnting.recyclerview.item_touch_helper.ItemTouchHelperActivity
+import com.cnting.recyclerview.item_visibility.TestItemVisibilityActivity
 import com.cnting.recyclerview.release_time.ReleaseTimeActivity
 import com.cnting.recyclerview.stagger.StaggerActivity
 import com.cnting.recyclerview.test_animate.TestAnimateActivity
@@ -58,6 +59,9 @@ class MainActivity : AppCompatActivity() {
         }
         barrageBtn2.setOnClickListener {
             startActivity(Intent(this, BarrageActivity2::class.java))
+        }
+        testVisibility.setOnClickListener {
+            startActivity(Intent(this, TestItemVisibilityActivity::class.java))
         }
     }
 }
