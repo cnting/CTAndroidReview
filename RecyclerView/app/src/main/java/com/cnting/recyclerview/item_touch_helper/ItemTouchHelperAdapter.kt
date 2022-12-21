@@ -30,8 +30,8 @@ class ItemTouchHelperAdapter(val data: MutableList<String>) : RecyclerView.Adapt
         holder.itemView.tv.text = data[position]
         holder.itemView.deleteBtn.setOnClickListener {
             data.removeAt(holder.bindingAdapterPosition)
-            notifyDataSetChanged()
-//            notifyItemRemoved(holder.bindingAdapterPosition)
+//            notifyDataSetChanged()
+            notifyItemRemoved(holder.bindingAdapterPosition)
         }
     }
 
