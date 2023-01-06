@@ -1,0 +1,72 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+//    id 'com.cnting.xmlviewscanplugin'
+}
+
+android {
+    namespace 'com.cnting.gradledemo'
+    compileSdk 32
+
+    defaultConfig {
+        applicationId "com.cnting.gradledemo"
+        minSdk 21
+        targetSdk 32
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
+//    productFlavors {
+//        flavorDimensions 'isFree'
+//        free {
+//            //免费版和付费版最低适配版本不同
+//            minSdkVersion 21
+//            //免费版和付费版使用不同的包名
+//            applicationId 'com.example.android.free'
+//            //写入不同的res值
+//            resValue "string", 'tag', 'free'
+//            //指定所在的维度
+//            dimension 'isFree'
+//        }
+//        paid {
+//            minSdkVersion 24
+//            applicationId 'com.example.android.paid'
+//            resValue "string", 'tag', 'paid'
+//            dimension 'isFree'
+//        }
+//    }
+
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+
+    implementation project(':apt-annotation')
+    implementation project(':apt-api')
+    kapt project(':apt-processor')
+}
+
+

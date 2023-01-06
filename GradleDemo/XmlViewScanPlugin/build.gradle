@@ -1,0 +1,51 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation "com.android.tools.build:gradle-api:7.3.1"
+}
+
+
+//gradle7.x这个配置看这里：https://juejin.cn/post/7087919146482008071
+//会在XmlViewScanPlugin/build/resources/下生成 [插件ID].properties
+gradlePlugin {
+    plugins {
+        xmlviewscanplugin {
+            //插件id
+            id = "com.cnting.xmlviewscanplugin"
+            version = "1.0.0"
+            //插件实现类
+            implementationClass = 'com.cnting.xmlviewscanplugin.XmlViewScanPlugin'
+        }
+    }
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java //使用默认的配置生成jar包
+            groupId = 'com.cnting'
+            artifactId = 'xmlviewscanplugin'
+            version = '1.0.0'
+        }
+    }
+    repositories {
+        maven {
+//            url = layout.projectDirectory.dir('repo')
+            url = '../repo'
+        }
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+
