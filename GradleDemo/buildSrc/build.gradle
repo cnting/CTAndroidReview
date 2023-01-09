@@ -1,0 +1,46 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20"
+    }
+}
+plugins{
+    id 'java-gradle-plugin'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.21'
+}
+repositories {
+    mavenCentral()
+}
+
+gradlePlugin {
+    plugins {
+        hookplugin {
+            //插件id
+            id = "HookAppPlugin"
+            //插件实现类
+            implementationClass = 'com.cnting.buildsrc.HookAppPlugin'
+        }
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/kotlin'
+        }
+
+//        resources {
+//            srcDir 'src/main/resources'
+//        }
+    }
+}
