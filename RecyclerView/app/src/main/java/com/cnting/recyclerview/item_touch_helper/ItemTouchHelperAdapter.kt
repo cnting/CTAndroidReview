@@ -1,6 +1,5 @@
 package com.cnting.recyclerview.item_touch_helper
 
-import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -14,9 +13,10 @@ import java.util.*
  * Created by cnting on 2020/11/9
  *
  */
-class ItemTouchHelperAdapter(val data: MutableList<String>) : RecyclerView.Adapter<MyViewHolder>(),
+class ItemTouchHelperAdapter(val data: MutableList<ItemTouchHelperActivity.ItemData>) :
+    RecyclerView.Adapter<MyViewHolder>(),
     CustomItemTouchListener {
-    private val colorArr = arrayOf(Color.BLUE, Color.CYAN, Color.MAGENTA, Color.RED, Color.GREEN)
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -25,12 +25,10 @@ class ItemTouchHelperAdapter(val data: MutableList<String>) : RecyclerView.Adapt
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.itemView.scrollTo(0, 0)
-        holder.itemView.tv.setBackgroundColor(colorArr[position % colorArr.size])
-        holder.itemView.tv.text = data[position]
+        holder.itemView.setBackgroundColor(data[position].color)
+        holder.itemView.tv.text = data[position].text
         holder.itemView.deleteBtn.setOnClickListener {
             data.removeAt(holder.bindingAdapterPosition)
-//            notifyDataSetChanged()
             notifyItemRemoved(holder.bindingAdapterPosition)
         }
     }
@@ -44,12 +42,14 @@ class ItemTouchHelperAdapter(val data: MutableList<String>) : RecyclerView.Adapt
         return position.toLong()
     }
 
-    override fun onMove(oldPosition: Int, newPosition: Int): Boolean {
-        Collections.swap(data, oldPosition, newPosition)
-        notifyItemMoved(oldPosition, newPosition)
+    override fun onMove(fromPos: Int, toPos: Int): Boolean {
+        Collections.swap(data, fromPos, toPos)
+        notifyItemMoved(fromPos, toPos)
         return true
     }
 
     override fun onSwipe(position: Int) {
+//        data.removeAt(position)
+//        notifyItemRemoved(position)
     }
 }

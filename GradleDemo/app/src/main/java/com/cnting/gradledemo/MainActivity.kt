@@ -12,6 +12,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val str = "aaa"
     }
 
     override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {

@@ -34,9 +34,11 @@ class TestAnimateAdapter(val data: MutableList<String>) : RecyclerView.Adapter<M
         return data.size
     }
 
-    override fun onMove(oldPosition: Int, newPosition: Int): Boolean {
+    override fun onMove(fromPos: Int, toPos: Int): Boolean {
         return true
     }
+
+
 
     override fun onSwipe(position: Int) {
         data.removeAt(position)

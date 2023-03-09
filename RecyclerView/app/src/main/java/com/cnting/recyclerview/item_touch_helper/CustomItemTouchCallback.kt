@@ -14,6 +14,7 @@ class CustomItemTouchCallback(private val itemTouchListener: CustomItemTouchList
     private var curScrollX = 0
     private var firstInactive = false
     private val defaultScrollX = 200  //大于这个值，显示删除按钮
+    private var startPos: Int = 0
 
     /**
      * 设置支持拖动还是滑动的flag
@@ -37,18 +38,24 @@ class CustomItemTouchCallback(private val itemTouchListener: CustomItemTouchList
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        return itemTouchListener.onMove(viewHolder.adapterPosition, target.adapterPosition)
+        startPos = viewHolder.bindingAdapterPosition
+        return itemTouchListener.onMove(
+            viewHolder.bindingAdapterPosition,
+            target.bindingAdapterPosition
+        )
     }
 
     /**
      * 滑动效果产生时的回调
      */
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-//        if (direction == ItemTouchHelper.END) {
-//            itemTouchListener.onSwipe(viewHolder.adapterPosition)
-//        }
+        itemTouchListener.onSwipe(viewHolder.bindingAdapterPosition)
     }
 
+
+    /**
+     * 当滑动距离/RecyclerView宽度 > 该方法返回值时，会触发侧滑删除。调到最大，保证不会侧滑删除
+     */
     override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
         return Float.MAX_VALUE
     }
@@ -98,12 +105,14 @@ class CustomItemTouchCallback(private val itemTouchListener: CustomItemTouchList
         } else if (viewHolder.itemView.scrollX < 0) {
             viewHolder.itemView.scrollTo(0, 0)
         }
-        itemTouchListener.onSwipe(viewHolder.adapterPosition)
+        itemTouchListener.onSwipe(viewHolder.bindingAdapterPosition)
     }
 }
 
 interface CustomItemTouchListener {
-    fun onMove(oldPosition: Int, newPosition: Int): Boolean
+    fun onMove(fromPos: Int, toPos: Int): Boolean
 
     fun onSwipe(position: Int)
+
+
 }

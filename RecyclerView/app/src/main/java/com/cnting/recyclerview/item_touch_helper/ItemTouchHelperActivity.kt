@@ -1,11 +1,11 @@
 package com.cnting.recyclerview.item_touch_helper
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.cnting.recyclerview.R
 import kotlinx.android.synthetic.main.activity_stagger.*
 
@@ -17,20 +17,21 @@ class ItemTouchHelperActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stagger)
-
-        val data = (0..50).map { "position $it" }.toMutableList()
+         val colorArr = arrayOf(Color.BLUE, Color.CYAN, Color.MAGENTA, Color.RED, Color.GREEN)
+        val data = (0..50).map { ItemData("position $it",colorArr[it % colorArr.size]) }.toMutableList()
         val adapter = ItemTouchHelperAdapter(data)
-        adapter.setHasStableIds(true)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
         val itemTouchHelper = ItemTouchHelper(CustomItemTouchCallback(adapter))
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        recyclerView.setRecyclerListener { holder ->
-            Log.d(
-                "===>",
-                "onViewRecycled:${holder.itemId}"
-            )
-        }
+//        recyclerView.setRecyclerListener { holder ->
+//            Log.d(
+//                "===>",
+//                "onViewRecycled:${holder.itemId}"
+//            )
+//        }
     }
+
+    data class ItemData(val text: String, val color: Int)
 }

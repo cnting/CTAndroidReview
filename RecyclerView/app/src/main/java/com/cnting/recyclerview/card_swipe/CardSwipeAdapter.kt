@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.cnting.recyclerview.R
-import com.cnting.recyclerview.item_touch_helper.CustomItemTouchCallback
 import com.cnting.recyclerview.item_touch_helper.CustomItemTouchListener
 import com.cnting.recyclerview.stagger.MyViewHolder
 import kotlinx.android.synthetic.main.view_custom_layout_manager.view.*
@@ -34,9 +33,11 @@ class CardSwipeAdapter(val data: MutableList<String>) : RecyclerView.Adapter<MyV
         return data.size
     }
 
-    override fun onMove(oldPosition: Int, newPosition: Int): Boolean {
+    override fun onMove(fromPos: Int, toPos: Int): Boolean {
         return true
     }
+
+
 
     override fun onSwipe(position: Int) {
         data.removeAt(position)

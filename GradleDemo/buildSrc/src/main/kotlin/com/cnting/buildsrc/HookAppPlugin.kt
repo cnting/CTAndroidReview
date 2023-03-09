@@ -11,9 +11,6 @@ class HookAppPlugin : BasePlugin() {
     override fun apply(project: Project) {
 //        super.apply(project)
         println("====>hook AppPlugin demo")
-
-        RuntimeException().printStackTrace()
-
         project.apply(INTERNAL_PLUGIN_ID)
     }
 

@@ -9,4 +9,9 @@ import com.cnting.apt_annotation.ViewCreator;
  */
 @ViewCreator
 public class MyApplication extends Application {
+
+    void test(){
+        StringBuilder sb = new StringBuilder();
+        sb.del
+    }
 }

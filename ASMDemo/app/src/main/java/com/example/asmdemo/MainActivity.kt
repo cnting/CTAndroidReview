@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        testRuntimeHook()
+//        testRuntimeHook()
 
 
         tv = findViewById(R.id.tv)
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 运行时hook检测
+     * 运行时hook检测，测试在compileSdk 31上会报错
      */
     private fun testRuntimeHook() {
         HookPrivacyMethod().hook(this)
