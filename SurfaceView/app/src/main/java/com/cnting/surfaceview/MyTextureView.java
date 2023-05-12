@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 
@@ -18,7 +19,7 @@ import java.io.IOException;
  */
 public class MyTextureView extends TextureView implements TextureView.SurfaceTextureListener {
     private MediaPlayer mediaPlayer;
-    private String url = "http://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_20mb.mp4";
+    private String url = "https://vd3.bdstatic.com/mda-jbejv57k2t7mf1v8/sc/mda-jbejv57k2t7mf1v8.mp4?v_from_s=hkapp-haokan-hna&auth_key=1680061735-0-0-9dcd1de51259a69faa2cc761125e17c4&bcevod_channel=searchbox_feed&pd=1&cd=0&pt=3&logid=1135776492&vid=6418636420905045734&abtest=107354_2&klogid=1135776492";
 
 
     public MyTextureView(@NonNull Context context) {

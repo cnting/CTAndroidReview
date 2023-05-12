@@ -187,5 +187,6 @@ public class BookManagerActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         System.out.println("客户端：after test no oneway");
+
     }
 }

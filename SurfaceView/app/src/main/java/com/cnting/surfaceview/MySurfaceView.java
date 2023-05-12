@@ -55,7 +55,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         isValid = true;
         //开启子线程绘制
-        startDrawThread();
+//        startDrawThread();
     }
 
     private void startDrawThread() {

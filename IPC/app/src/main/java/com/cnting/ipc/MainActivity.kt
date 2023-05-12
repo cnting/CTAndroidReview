@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         shareMemoryBtn.setOnClickListener {
             startActivity(Intent(this, TestShareMemoryActivity::class.java))
         }
+
     }
 
 }
